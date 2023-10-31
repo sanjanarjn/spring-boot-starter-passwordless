@@ -9,6 +9,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,6 +23,7 @@ import java.util.Arrays;
 import static org.springframework.security.core.context.SecurityContextHolder.getContext;
 
 @Component
+@Slf4j
 public class PasswordlessAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
@@ -37,6 +39,8 @@ public class PasswordlessAuthenticationFilter extends OncePerRequestFilter {
             try {
                verifiedUser = passwordlessClient.signIn(new VerifySignIn(token));
             } catch (PasswordlessApiException e) {
+                //TODO Check the problem details and take appropriate action!
+                log.error("Error signing in the user");
                 throw new RuntimeException(e);
             }
         }
