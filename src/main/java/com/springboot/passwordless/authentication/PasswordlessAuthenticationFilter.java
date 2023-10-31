@@ -22,12 +22,14 @@ import java.util.Arrays;
 
 import static org.springframework.security.core.context.SecurityContextHolder.getContext;
 
-@Component
 @Slf4j
 public class PasswordlessAuthenticationFilter extends OncePerRequestFilter {
 
-    @Autowired
     private PasswordlessClient passwordlessClient;
+
+    public PasswordlessAuthenticationFilter(@Autowired PasswordlessClient passwordlessClient) {
+        this.passwordlessClient = passwordlessClient;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)

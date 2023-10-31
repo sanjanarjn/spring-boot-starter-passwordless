@@ -1,19 +1,31 @@
 package com.springboot.passwordless.authentication;
 
+import com.bitwarden.passwordless.PasswordlessClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 public class SecurityConfiguration {
 
     @Autowired
-    public PasswordlessAuthenticationFilter passwordlessAuthenticationFilter;
+    public PasswordlessClient passwordlessClient;
+
+    @Bean
+    public FilterRegistrationBean<PasswordlessAuthenticationFilter> filterRegistrationBean() {
+        FilterRegistrationBean<PasswordlessAuthenticationFilter> registrationBean = new FilterRegistrationBean<>();
+        registrationBean.setFilter(new PasswordlessAuthenticationFilter(passwordlessClient));
+
+        // Specify the URL patterns to which the filter should be applied
+        registrationBean.addUrlPatterns("/users/login");
+
+        return registrationBean;
+    }
 
     @Bean
     public Customizer<CsrfConfigurer<HttpSecurity>> csrfCustomizer() {
@@ -28,7 +40,6 @@ public class SecurityConfiguration {
                 .requestMatchers("/users/login", "/users/register").permitAll()
                 .anyRequest().authenticated()
         );
-        http.addFilterBefore(passwordlessAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }
